@@ -61,61 +61,49 @@ const HomeScreen = () => {
     playerRef.current.removePlayBackListener();
   };
 
-  const uploadAudioAsync = (uri) => {
+  const uploadAudioAsync = async (uri) => {
     console.log('Uploading' + uri);
-    const apiUrl = 'http://ten5vabackend-env.eba-mca4g3he.us-east-1.elasticbeanstalk.com/api/v1/audio/upload';
-    const uriParts = uri.split('.');
-    const fileType = uriParts[uriParts.length - 1];
+    const newUri = uri.replace(/([^:]\/)\/+/g, "$1");
+    console.log('newUri', newUri);
+    var myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NDU3MTYzNDAsInN1YiI6IjM0IiwidHlwZSI6ImFjY2VzcyJ9.XBKxmjSsB1Kc5kXN87DLYi7FI5GIXEyob9eJBT0o8-k');
+    myHeaders.append('Accept', 'application/json')
+    myHeaders.append('Content-Type', 'multipart/form-data')
+    const apiUrl = 'https://ten5backend.jrtec-test.ml/api/v1/audio/upload:3000';
+    // const uriParts = newUri.split('.');
+    // const fileType = uriParts[uriParts.length - 1];
 
     const formData = new FormData();
     formData.append('title', 'canción');
     formData.append('description', 'probando canción');
     formData.append('wave_file', {
-      uri,
-      name: `recording.${fileType}`,
-      type: `audio/x-${fileType}`,
+      uri: newUri,
+      name: 'hello.mp3',
+      type: 'audio/acc'
     });
 
     const options = {
       method: 'POST',
       body: formData,
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: myHeaders,
     };
 
-    console.log('POSTing' + uri + 'to' + apiUrl);
-    return fetch(apiUrl, options);
+    console.log('POSTing' + newUri + 'to' + apiUrl);
+    fetch(apiUrl, options)
+      .then(response => response.text())
+      .then(result => console.log(result))
+      .catch(error => console.log('error', error));
   }
 
   return (
     <Box>
       <VStack space="4" divider={<Divider />}>
-        <Button
-          onPress={() => onStartRecord()}
-        >
-          RECORD
-        </Button>
-        <Button
-          onPress={() => onStopRecord()}
-        >
-          STOP
-        </Button>
+        <Button onPress={() => onStartRecord()}>RECORD</Button>
+        <Button onPress={() => onStopRecord()}>STOP</Button>
         <Divider />
-        <Button mode="contained" icon="play" onPress={() => onStartPlay()}>
-          PLAY
-        </Button>
-        <Button
-          onPress={() => onPausePlay()}
-        >
-          PAUSE
-        </Button>
-        <Button
-          onPress={() => onStopPlay()}
-        >
-          STOP
-        </Button>
+        <Button onPress={() => onStartPlay()}>PLAY</Button>
+        <Button onPress={() => onPausePlay()}>PAUSE</Button>
+        <Button onPress={() => onStopPlay()}>STOP</Button>
       </VStack>
     </Box>
   );
